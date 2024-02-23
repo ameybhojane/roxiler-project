@@ -149,8 +149,8 @@ function TransactionTable() {
             />
             <Graph month={selectedMonth}
                 setError={setError} />
-            {/* <Pie month={selectedMonth}
-                setError={setError} /> */}
+            <Pie month={selectedMonth}
+                setError={setError} />
         </div>
     )
 }
