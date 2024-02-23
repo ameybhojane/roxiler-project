@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:3000';
+const BASE_URL = 'https://roxiler-server-three.vercel.app';
 
 export {
     BASE_URL
