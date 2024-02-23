@@ -23,7 +23,13 @@ function TransactionTable() {
     }, [selectedMonth])
 
     const getDataForMonth = async () => {
-        axios.get(`${BASE_URL}/transactions/searchWith?month=${selectedMonth}`).then((res) => {
+        axios.get(`${BASE_URL}/transactions/searchWith?month=${selectedMonth}`,
+            {
+                headers: {
+                    'Access-Control-Allow-Origin': 'https://roxiler-project.vercel.app'
+                }
+            }
+        ).then((res) => {
             const resData = res?.data;
             setTableRows(resData?.transactions);
         }).catch((err) => {
