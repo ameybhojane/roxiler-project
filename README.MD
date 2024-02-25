@@ -39,5 +39,3 @@ You can also clone the repository and run it in development mode using:
 
 6. API for obtaining a combined result from the above three APIs:
 [https://roxiler-project-3h6z.vercel.app/transactions/getAllStats?month=march](https://roxiler-project-3h6z.vercel.app/transactions/getAllStats?month=march)
-
-Feel free to explore and utilize the provided APIs for your requirements.
