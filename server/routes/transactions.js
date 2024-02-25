@@ -23,7 +23,7 @@ router.get('/getAll', async (req, res) => {
 
 });
 const getTransactionByMonth = async (req, res) => {
-    const { text, page } = req.query
+    const { text, page = 1, limit = 3 } = req.query
     let { month } = req.query
     if (typeof (month) == "string") {
         month = month.trim().toLowerCase();
@@ -34,21 +34,26 @@ const getTransactionByMonth = async (req, res) => {
         res.status(400).json({ error: "Please enter a valid month" })
     }
     let query;
+    let query2
     if (text) {
         query = `SELECT * FROM transactions where MONTH(dateOfSale) = ${month}
                 AND (description like '%${text}%' or title like '%${text}%' or price like '%${text}%' )`
+        query2 = `SELECT count(*) as totalCount FROM transactions where MONTH(dateOfSale) = ${month}
+                AND (description like '%${text}%' or title like '%${text}%' or price like '%${text}%' )`
     } else {
-
+        query2 = `SELECT count(*) as totalCount FROM transactions where MONTH(dateOfSale) = ${month}`
         query = `SELECT * FROM transactions where MONTH(dateOfSale) = ${month} `
     }
+    const totalCount = await sequelize.query(query2, { raw: true }).then(res => res?.[0]?.[0]?.totalCount).catch(err => res.status(400).json({ error: "Error while Quering DB", err }))
     if (page) {
-        query += ` ORDER BY ID LIMIT 10 OFFSET ${(Number(page) - 1) * 10}`
+        query += ` ORDER BY ID LIMIT ${limit} OFFSET ${(Number(page) - 1) * limit}`
     }
     const transactions = await sequelize.query(query,
         { type: QueryTypes.SELECT, raw: true }
     ).catch(err => res.status(400).json({ error: "Error while Quering DB", err }))
 
-    res.json({ transactions });
+
+    res.json({ transactions, totalCount });
 
 }
 
