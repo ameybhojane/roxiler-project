@@ -5,27 +5,34 @@ const axios = require('axios');
 const { Op } = require('sequelize');
 const sequelize = require('../database/db');
 const { QueryTypes } = require('sequelize');
+const { monthMapping } = require('./utils/utils');
+
 
 router.get('/getAll', async (req, res) => {
-    console.log(req);
     await Transaction.sync({ force: true });
     await Transaction.truncate();
 
     const transactions = await axios.get('https://s3.amazonaws.com/roxiler.com/product_transaction.json ').then((response) => {
-        // console.log(response.data);
         return response.data
     }).catch(err => {
         console.log(err);
     });
     await Transaction.bulkCreate(transactions);
     const dbTransactions = await Transaction.findAll({ raw: true });
-    // console.log(dbTransactions);
-    res.json({ mesaage: "Sucessfull", dbTransactions });
+    res.json({ mesaage: "Data Seeded and Fetched Successfully", dbTransactions });
 
 });
 const getTransactionByMonth = async (req, res) => {
-    console.log(req);
-    const { month, text, page } = req.query
+    const { text, page } = req.query
+    let { month } = req.query
+    if (typeof (month) == "string") {
+        month = month.trim().toLowerCase();
+        month = monthMapping[month] || Number(month)
+    }
+    month = Number(month)
+    if (isNaN(month) || month > 12) {
+        res.status(400).json({ error: "Please enter a valid month" })
+    }
     let query;
     if (text) {
         query = `SELECT * FROM transactions where MONTH(dateOfSale) = ${month}
@@ -39,32 +46,45 @@ const getTransactionByMonth = async (req, res) => {
     }
     const transactions = await sequelize.query(query,
         { type: QueryTypes.SELECT, raw: true }
-    )
+    ).catch(err => res.status(400).json({ error: "Error while Quering DB", err }))
 
     res.json({ transactions });
-    // res.render('index', { title: 'Express' });
-
 
 }
 
 const getStatistics = async (req, res) => {
     let { month } = req.query
+    if (typeof (month) == "string") {
+        month = month.trim().toLowerCase();
+        month = monthMapping[month] || Number(month)
+    }
     month = Number(month)
+    if (isNaN(month) || month > 12) {
+        res.status(400).json({ error: "Please enter a valid month" })
+    }
     const totalSales = await sequelize.query(
         `SELECT SUM(price*sold) as totalSales FROM transactions where MONTH(dateOfSale) = ${month}`
-    ).then(res => res[0][0].totalSales)
+    ).then(res => res[0][0].totalSales).catch(err => res.status(400).json({ error: "Error while Quering DB", err }))
     const itemsSold = await sequelize.query(
         `SELECT count(*) as count FROM transactions where MONTH(dateOfSale) = ${month} and sold = 0`
-    ).then(res => res[0][0].count)
+    ).then(res => res[0][0].count).catch(err => res.status(400).json({ error: "Error while Quering DB", err }))
     const itemsUnsold = await sequelize.query(
         `SELECT count(*) as count FROM transactions where MONTH(dateOfSale) = ${month} and sold = 1`
-    ).then(res => res[0][0].count)
+    ).then(res => res[0][0].count).catch(err => res.status(400).json({ error: "Error while Quering DB", err }))
 
     res.json({ totalSales, itemsSold, itemsUnsold })
 }
 
 const getBarChart = async (req, res) => {
-    const { month } = req.query
+    let { month } = req.query
+    if (typeof (month) == "string") {
+        month = month.trim().toLowerCase();
+        month = monthMapping[month] || Number(month)
+    }
+    month = Number(month)
+    if (isNaN(month) || month > 12) {
+        res.status(400).json({ error: "Please enter a valid month" })
+    }
     const query = `Select
                 SUM(Case When price <= 100 then 1 else 0 end) as '0-100',
                 SUM(Case When price <= 200 and price > 100 then 1 else 0 end) as '101-200',
@@ -78,24 +98,39 @@ const getBarChart = async (req, res) => {
                 SUM(Case When price  > 900 then 1 else 0 end) as '901 and above'
                 from transactions where MONTH(dateOfSale) = ${month}
     `
-    const barData = await sequelize.query(query).then(res => res[0][0]);
+    const barData = await sequelize.query(query).then(res => res[0][0]).catch(err => res.status(400).json({ error: "Error while Quering DB", err }));
     res.json({ barData });
 
 }
 
 const getPieDiagram = async (req, res) => {
-    const { month } = req.query
-    const query = `Select count(id) as value , category as label,id from transactions where MONTH(dateOfsale) = ${month} group by category;`
-    const pieData = await sequelize.query(query).then((res) => res[0]).catch(err => console.log(err))
+    let { month } = req.query
+    if (typeof (month) == "string") {
+        month = month.trim().toLowerCase();
+        month = monthMapping[month] || Number(month)
+    }
+    month = Number(month)
+    if (isNaN(month) || month > 12) {
+        res.status(400).json({ error: "Please enter a valid month" })
+    } const query = `Select count(id) as value , category as label,id from transactions where MONTH(dateOfsale) = ${month} group by category;`
+    const pieData = await sequelize.query(query).then((res) => res[0]).catch(err => res.status(400).json({ error: "Error while Quering DB", err }))
     res.json({ pieData })
 }
 
 const getAllStats = async (req, res) => {
-    const { month } = req.query;
+    let { month } = req.query
+    if (typeof (month) == "string") {
+        month = month.trim().toLowerCase();
+        month = monthMapping[month] || Number(month)
+    }
+    month = Number(month)
+    if (isNaN(month) || month > 12) {
+        res.status(400).json({ error: "Please enter a valid month" })
+    }
     const host = "https://roxiler-project-3h6z.vercel.app"
-    const totalSales = await axios.get(`${host}/transactions/getStatistics?month=${month}`).then(res => res.data).catch(err => err);
-    const barData = await axios.get(`${host}/transactions/getBarChart?month=${month}`).then(res => res.data).catch(err => err);
-    const pieData = await axios.get(`${host}/transactions/getPieDiagram?month=${month}`).then(res => res.data).catch(err => err);
+    const totalSales = await axios.get(`${host}/transactions/getStatistics?month=${month}`).then(res => res.data).catch(err => res.status(400).json({ error: "Error while Fetching through API", err }))
+    const barData = await axios.get(`${host}/transactions/getBarChart?month=${month}`).then(res => res.data).catch(err => res.status(400).json({ error: "Error while Fetching through API", err }))
+    const pieData = await axios.get(`${host}/transactions/getPieDiagram?month=${month}`).then(res => res.data).catch(err => res.status(400).json({ error: "Error while Fetching through API", err }))
 
     res.json({ totalSales, barData, pieData })
 }
@@ -104,7 +139,5 @@ router.get('/getStatistics', getStatistics)
 router.get('/getBarChart', getBarChart)
 router.get('/getPieDiagram', getPieDiagram)
 router.get('/getAllStats', getAllStats)
-
-
 
 module.exports = router;
