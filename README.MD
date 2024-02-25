@@ -28,14 +28,18 @@ You can also clone the repository and run it in development mode using:
 2. API for obtaining transactions with a specific month's Date of Sale (e.g., March):
 [https://roxiler-project-3h6z.vercel.app/transactions/searchWith?month=march](https://roxiler-project-3h6z.vercel.app/transactions/searchWith?month=march)
 
-3. API for acquiring statistics for a particular month:
+3. API for acquiring statistics for a particular month with page no , no of records per page(limit) and text:
+[https://roxiler-project-3h6z.vercel.app/transactions/searchWith?month=january&page=1&limit=3&text=Casual](https://roxiler-project-3h6z.vercel.app/transactions/searchWith?month=january&page=1&limit=3&text=Casual)
+
+
+4. API for acquiring statistics for a particular month:
 [https://roxiler-project-3h6z.vercel.app/transactions/getStatistics?month=january](https://roxiler-project-3h6z.vercel.app/transactions/getStatistics?month=january)
 
-4. API for retrieving a Bar Chart:
+5. API for retrieving a Bar Chart:
 [https://roxiler-project-3h6z.vercel.app/transactions/getBarChart?month=january](https://roxiler-project-3h6z.vercel.app/transactions/getBarChart?month=january)
 
-5. API for Obtaining a Pie Diagram:
+6. API for Obtaining a Pie Diagram:
 [https://roxiler-project-3h6z.vercel.app/transactions/getPieDiagram?month=march](https://roxiler-project-3h6z.vercel.app/transactions/getPieDiagram?month=march)
 
-6. API for obtaining a combined result from the above three APIs:
+7. API for obtaining a combined result from the above three APIs:
 [https://roxiler-project-3h6z.vercel.app/transactions/getAllStats?month=march](https://roxiler-project-3h6z.vercel.app/transactions/getAllStats?month=march)
