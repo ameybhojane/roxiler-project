@@ -85,15 +85,25 @@ const getBarChart = async (req, res) => {
 
 const getPieDiagram = async (req, res) => {
     const { month } = req.query
-    const query = `Select count(id) as value , category as label from transactions where MONTH(dateOfsale) = ${month} group by category;`
+    const query = `Select count(id) as value , category as label,id from transactions where MONTH(dateOfsale) = ${month} group by category;`
     const pieData = await sequelize.query(query).then((res) => res[0]).catch(err => console.log(err))
     res.json({ pieData })
 }
 
+const getAllStats = async (req, res) => {
+    const { month } = req.query;
+    const host = "https://roxiler-project-3h6z.vercel.app"
+    const totalSales = await axios.get(`${host}/transactions/getStatistics?month=${month}`).then(res => res.data).catch(err => err);
+    const barData = await axios.get(`${host}/transactions/getBarChart?month=${month}`).then(res => res.data).catch(err => err);
+    const pieData = await axios.get(`${host}/transactions/getPieDiagram?month=${month}`).then(res => res.data).catch(err => err);
+
+    res.json({ totalSales, barData, pieData })
+}
 router.get('/searchWith', getTransactionByMonth)
 router.get('/getStatistics', getStatistics)
 router.get('/getBarChart', getBarChart)
 router.get('/getPieDiagram', getPieDiagram)
+router.get('/getAllStats', getAllStats)
 
 
 

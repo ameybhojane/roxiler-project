@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react'
 import { BASE_URL } from '../configs/config';
 import axios from 'axios';
 import { PieChart } from '@mui/x-charts'
+import _ from 'lodash';
+import { Typography, Box } from '@mui/material';
+import { months } from '../utils/months';
 
 function Pie(props) {
     const { month, setError } = props;
@@ -22,17 +25,21 @@ function Pie(props) {
     }
     return (
         <div>
-            <PieChart
-                series={[
-                    {
-                        data:
-                            barData
-                        ,
-                    },
-                ]}
-                width={400}
-                height={200}
-            />
+            <Box flexGrow={1}>
+
+                <Typography>Pie Chart Stats - {months[month - 1].option}</Typography>
+                <PieChart
+                    series={[
+                        {
+                            data:
+                                barData.map((ele) => ({ ...ele, label: _.startCase(ele.label) }))
+                            ,
+                        },
+                    ]}
+                    width={500}
+                    height={200}
+                />
+            </Box>
         </div>
     )
 }

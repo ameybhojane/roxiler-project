@@ -3,6 +3,8 @@ import { BarChart } from '@mui/x-charts'
 import { BASE_URL } from '../configs/config';
 import axios from 'axios';
 import { isEmpty } from 'lodash';
+import { months } from '../utils/months';
+import { Box, Typography } from '@mui/material';
 
 
 
@@ -22,18 +24,28 @@ function Graph(props) {
   }
   return (
     <div>
-      <BarChart
-        series={[
-          { data: Object.values(barData) }
-        ]
-        }
-        height={290}
-        xAxis={[{
-          data: Object.keys(barData)
-          , scaleType: 'band'
-        }]}
-        margin={{ top: 10, bottom: 30, left: 40, right: 10 }}
-      />
+      <Box flexGrow={1}>
+
+        <Typography >Bar Chart Stats - {months[month - 1].option}</Typography>
+        <BarChart
+          series={[
+            { data: Object.values(barData) }
+          ]
+          }
+          height={400}
+          xAxis={[{
+            data: Object.keys(barData),
+            scaleType: 'band',
+            label: 'Prices'
+          }]}
+          yAxis={[
+            {
+              label: 'No of Items',
+            },
+          ]}
+          margin={{ top: 10, bottom: 60, left: 60, right: 10 }}
+        />
+      </Box>
     </div>
   )
 }

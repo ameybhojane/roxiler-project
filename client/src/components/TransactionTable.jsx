@@ -6,6 +6,8 @@ import { months } from '../utils/months';
 import Statistics from './Statistics';
 import Graph from './Graph';
 import Pie from './Pie';
+import moment from 'moment';
+import _ from 'lodash'
 
 function TransactionTable() {
     const [selectedMonth, setSelectedMonth] = useState(3);
@@ -50,9 +52,9 @@ function TransactionTable() {
 
     return (
         <div>
-            <Row xs="4">
+            <Row xs="4" className='m-2'>
 
-                <Col className="bg-light border">
+                <Col className="">
                     <InputGroup>
                         <Input value={searchValue} onChange={(e) => setSearchValue(e.target.value)} />
                         <Button onClick={() => getTransactionsWith()}>
@@ -61,8 +63,8 @@ function TransactionTable() {
                     </InputGroup>
                 </Col>
 
-                <Col className="bg-light border" sm={{
-                    offset: 4,
+                <Col className="" sm={{
+                    offset: 6,
                     order: 2,
                     size: 3
                 }}>
@@ -81,14 +83,16 @@ function TransactionTable() {
                 </Col>
             </Row>
             <Container
-                className="bg-light border"
+                className="m-1"
                 fluid
             >
 
-                <Table bordered striped>
+                <Table bordered size='sm' className='p-0'>
+
+
                     <thead>
-                        <tr>
-                            <th>
+                        <tr className="table-primary">
+                            <th >
                                 Id
                             </th>
                             <th>
@@ -117,7 +121,7 @@ function TransactionTable() {
                     <tbody>
                         {
                             tableRows.map((data) => (
-                                <tr>
+                                <tr className="table-info">
                                     <th scope='row'>
                                         {data.id}
                                     </th>
@@ -129,16 +133,16 @@ function TransactionTable() {
                                         {data.price}
                                     </th>
                                     <th>
-                                        data.description
+                                        {data.description}
                                     </th>
                                     <th>
-                                        {data.dateOfSale}
+                                        {moment(data.dateOfSale).format('Do MMM YYYY')}
                                     </th>
                                     <th>
-                                        {data.category}
+                                        {_.startCase(data.category)}
                                     </th>
                                     <th>
-                                        {data.sold}
+                                        {data.sold ? "Yes" : "No"}
                                     </th>
                                     <th>
                                         <a href={data.image} target='_blank'> View
